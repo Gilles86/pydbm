@@ -10,8 +10,8 @@ class BayesianDBM(object):
     def __init__(self, observations, prior=(1, 1), alpha=0.8):
         self.observations = np.array(observations)
         
-        self.fails = np.cumsum(self.observations == False)
-        self.succeses = np.cumsum(self.observations == True)
+        self.fails = np.concatenate(([0], np.cumsum(~self.observations)))
+        self.succeses = np.concatenate(([0], np.cumsum(self.observations)))
         
         self.prior = np.array(prior)
         self.alpha = alpha
@@ -23,27 +23,24 @@ class BayesianDBM(object):
     def get_beta_distributions(self):
         
         weights = [[1.0]]
-        
+
         beta_dists = [sp.stats.beta(self.prior[0], self.prior[1])]
-        
-        
+
+
         for obs in np.arange(1, self.n_observations):
             weights.append([(1-self.alpha)])
 
-            alphas = self.prior[0] + self.succeses[obs] - self.succeses[obs - np.arange(obs+1)]                        
+            alphas = self.prior[0] + self.succeses[obs] - self.succeses[obs - np.arange(obs+1)]
             betas = self.prior[1] + self.fails[obs] - self.fails[obs - np.arange(obs+1)]
 
-            
             beta_dists.append(sp.stats.beta(alphas, betas))
-            
+
             for age in np.arange(1, obs):
                 weights[-1].append((1-self.alpha) * self.alpha**(age))
-                
-            weights[-1].append(self.alpha**obs)
 
-        
-        weights = weights
-        
+            weights[-1].append(self.alpha**(obs+1))
+
+
         return weights, beta_dists
     
     def get_p_per_trial(self):
