@@ -53,7 +53,7 @@ class BayesianDBM(object):
         
         weights, betas = self.get_beta_distributions()
 
-        for i in xrange(self.n_observations):
+        for i in range(self.n_observations):
             means.append(np.sum(weights[i] * betas[i].pdf(self.t[:, np.newaxis]), 1) / self.n_steps)
             
         return np.array(means).T
