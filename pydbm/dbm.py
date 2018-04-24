@@ -38,8 +38,7 @@ class BayesianDBM(object):
             for age in np.arange(1, obs):
                 weights[-1].append((1-self.alpha) * self.alpha**(age))
 
-            weights[-1].append(self.alpha**(obs+1))
-
+            weights[-1].append(self.alpha**(obs))
 
         return weights, beta_dists
     
